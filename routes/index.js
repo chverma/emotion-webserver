@@ -15,7 +15,9 @@ router.get('/captureImage', function(req, res, next) {
 
 router.post('/captureImage', function(req, res, next) {
 	//console.log("FormData "+ req.body.base64);
-	console.log("hola");
+
+	console.log("Image received from: "+ip);
+	var ip = req.body.ip
 	var emotion = req.body.emotion;
 	var base64Data = req.body.base64.replace(/^data:image\/png;base64,/, "");
     var timestamp = new Date().getTime();

@@ -104,8 +104,8 @@ block content
             var video  = document.getElementById("video");
             context = canvas.getContext("2d");
             context.drawImage(video, 0, 0, 640, 480);
-            console.log(video.style.height)
-            console.log(video.style.width)
+            console.log("video[Height]"+video.style.height)
+            console.log("video[Width]"+video.style.width)
             var request = $http({
             method: "post",
             url:  "/captureImage",
