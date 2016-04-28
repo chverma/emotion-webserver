@@ -1,0 +1,16 @@
+.notifybar{
+    margin: 3px !important;
+}
+.notifybar-success, .x-nlg .notifybar-success {
+    border: 1px solid #AEE0AE !important;
+    background-color: #D1EED1 !important;
+    background-image: none !important;
+}
+.notifybar-error, .x-nlg .notifybar-error {
+    border:  1px solid #F79897 !important;
+    background-color: #FDDFDE !important;
+    background-image: none !important;
+}
+.x-toolbar .notifybar-text {
+    white-space: normal !important;
+}
