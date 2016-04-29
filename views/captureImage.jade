@@ -13,12 +13,12 @@ block content
           div.col-md-1
             input( id="happyi" type="radio" name="group1"  value="happy") 
           div.col-md-1
-            p Content
+            p Contenta
         div.row(id="sad" class="btn btn-primary")
           div.col-md-1
             input( id="sadi" type="radio" name="group1" value="sad") 
           div.col-md-1
-            p Trist
+            p Trista
         div.row(id="neutral" class="btn btn-primary")
           div.col-md-1
             input( id="neutrali" type="radio" name="group1" value="neutral" checked) 
@@ -28,17 +28,17 @@ block content
           div.col-md-1
             input( id="disgusti" type="radio" name="group1" value="disgust") 
           div.col-md-1
-            p Disgustat
+            p Disgustada
         div.row(id="fear" class="btn btn-primary")
           div.col-md-1
             input( id="feari" type="radio" name="group1" value="fear") 
           div.col-md-1
-            p Asustat
+            p Asustada
         div.row(id="surprised" class="btn btn-primary")
           div.col-md-1
             input(  id="surprisedi" type="radio" name="group1" value="surprised")  
           div.col-md-1
-            p Sorprés
+            p Sorpresa
     
     
       
@@ -51,6 +51,7 @@ block content
     div
       br
       button(id="upload" class="btn btn-success btn-block" ng-click="uploadImage()" width='100' height='20') Enviar
+      button(id="svm" class="btn btn-warning btn-block" ng-click="uploadToSVM()" width='100' height='20') SVM
      
   script(type="text/javascript").
    // Put event listeners into place
@@ -123,6 +124,35 @@ block content
            console.log("Upload bad!");
            //alert(serverResponse);
            $.notifyBar({ cssClass: "error", html: "Hem tingut un problema, torna a provar ;)" });
+        });
+      };
+      
+      //Send to SVM
+      $scope.uploadToSVM = function () {
+            var canvas = document.getElementById("canvas");
+            var video  = document.getElementById("video");
+            context = canvas.getContext("2d");
+            context.drawImage(video, 0, 0, 640, 480);
+            console.log("video[Height]"+video.style.height)
+            console.log("video[Width]"+video.style.width)
+            var request = $http({
+            method: "post",
+            url:  "/svm",
+            data: {
+               base64: canvas.toDataURL(),
+               emotion: $("input[name=group1]:checked").val()
+            },
+            headers: { 'Content-Type': 'application/json' }
+          });
+        request.success(function (data) {
+            console.log("Upload ok!"+data.msg);
+            $.notifyBar({ cssClass: "success", html: data.msg});
+            
+        });
+        request.error(function(serverResponse, status, headers, config) {
+           console.log("Upload bad!");
+           alert(serverResponse);
+           $.notifyBar({ cssClass: "error", html: "Hem tingut un problema al svm, torna a provar ;)" });
         });
       };
    });
