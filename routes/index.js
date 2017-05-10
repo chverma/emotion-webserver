@@ -41,7 +41,7 @@ router.post('/svm', function (req, res, next) {
   var base64Data = req.body.base64.replace(/^data:image\/png;base64,/, '')
   var timestamp = new Date().getTime()
   var filename = emotion + '/web' + timestamp + '.png'
-  fs.writeFile('uploads/' + filename, base64Data, 'base64', function (err) {
+  fs.writeFile('public/uploads/' + filename, base64Data, 'base64', function (err) {
     if (err) {
       console.log('error writing file: ' + err)
     } else {
@@ -67,9 +67,41 @@ router.post('/svm', function (req, res, next) {
   })
 })
 
+function getFilePath (emotion) {
+  var filesPath = 'uploads/' + emotion + '/'
+  var filesAdminPath = './public/' + filesPath
+  var allFiles = fs.readdirSync(filesAdminPath, function (err, files) {
+    if (err) {
+      throw err
+    }
+    return files
+  })
+  var file = ''
+  for (var i = 0; i < allFiles.length; i++) {
+    if (allFiles[i].substring(allFiles[i].length - 3, allFiles[i].length) === 'png') {
+      file = allFiles[i]
+      return filesPath + file
+    }
+  }
+}
+
 router.get('/revisor', function (req, res, next) {
-  // res.render('index', { title: 'Express'});
-  res.render('revisor', {title: 'Revisor'})
+  var emotions = ['fear', 'surprised', 'disgust', 'happy', 'neutral', 'sad']
+  var file = ''
+  for (var i = 0; i < emotions.length; i++) {
+    file = getFilePath(emotions[i])
+    if (file) {
+      break
+    }
+  }
+  res.render('revisor', {title: 'Revisor', imgPath: file})
+})
+
+router.post('/revisor', function (req, res, next) {
+  var emotion = req.body.emotion
+  var filePath = req.body.filePath
+  console.log(emotion)
+  console.log(filePath)
 })
 
 module.exports = router
