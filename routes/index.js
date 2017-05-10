@@ -65,11 +65,11 @@ router.post('/svm', function (req, res, next) {
       })
     }
   })
+})
 
-  router.get('/revisor', function (req, res, next) {
-    // res.render('index', { title: 'Express'});
-    res.render('revisor', {title: 'Revisor'})
-  })
+router.get('/revisor', function (req, res, next) {
+  // res.render('index', { title: 'Express'});
+  res.render('revisor', {title: 'Revisor'})
 })
 
 module.exports = router

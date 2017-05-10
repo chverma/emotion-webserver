@@ -1,0 +1,102 @@
+extends layout
+block content
+  nav(class='navbar navbar-default navbar-fixed-top')
+    div(class='container-fluid')
+      div(class='navbar-header')
+        a(class='navbar-brand' href='#')
+          img(alt='Brand' src='img/tracking.jpeg' width='40' height='27')
+      div(class="collapse navbar-collapse" id="bs-example-navbar-collapse-1")
+        ul(class="nav navbar-nav")
+          li(class="active")
+            a(href="revisor") Revisor 
+              span(class="sr-only") (current)
+          li 
+            a(href="captureImage") Càmera web
+
+  div(class='container' id='Cool' ng-app='cameraCaptureWeb' ng-controller='formController')
+    h2(class="text-center").blue.red#header('property'='pValue') Panell del revisor
+    div.row
+     div.col-md-6
+       video#video(autoplay='' ng-click='uploadImage()')
+     div.col-md-6
+       canvas#canvas(width='640', height='480' hidden='true')
+
+    div(class='btn-group btn-group-lg btn-block')
+        div.row(id='happy' class='btn btn-primary' )
+          div.col-md-1
+            input( id='happyi' type='radio' name='group1'  value='happy')
+          div.col-md-1
+            p Contenta
+        div.row(id='sad' class='btn btn-primary')
+          div.col-md-1
+            input( id='sadi' type='radio' name='group1' value='sad')
+          div.col-md-1
+            p Trista
+        div.row(id='neutral' class='btn btn-primary')
+          div.col-md-1
+            input( id='neutrali' type='radio' name='group1' value='neutral' checked)
+          div.col-md-1
+            p Neutral
+        div.row(id='disgust' class='btn btn-primary')
+          div.col-md-1
+            input( id='disgusti' type='radio' name='group1' value='disgust')
+          div.col-md-1
+            p Disgustada
+        div.row(id='fear' class='btn btn-primary')
+          div.col-md-1
+            input( id='feari' type='radio' name='group1' value='fear')
+          div.col-md-1
+            p Asustada
+        div.row(id='surprised' class='btn btn-primary')
+          div.col-md-1
+            input(  id='surprisedi' type='radio' name='group1' value='surprised')
+          div.col-md-1
+            p Sorpresa
+    div
+      br
+      button(id='upload' class='btn btn-success btn-block' ng-click='uploadImage()' width='100' height='20') Enviar
+      button(id='svm' class='btn btn-warning btn-block' ng-click='uploadToSVM()' width='100' height='20') SVM
+
+  script(type='text/javascript').
+   // Put event listeners into place
+      window.addEventListener('DOMContentLoaded', function() {
+          // Trigger photo take
+          var emotions = ['happy','sad','neutral','disgust','fear','surprised']
+          for (var i = 0; i < emotions.length; i++) {
+            var btnGRP = document.getElementById(emotions[i]);
+            btnGRP.addEventListener('click', function() {
+                //alert('hola')
+                this.firstChild.firstChild.setAttribute('checked', 'true');
+            });
+          }
+      }, false);
+
+   var mainApp = angular.module('cameraCaptureWeb', []);
+   mainApp.controller('formController', function($scope, $http) {
+       $scope.uploadImage = function () {
+            var canvas = document.getElementById('canvas');
+            var video  = document.getElementById('video');
+            context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, 640, 480);
+            console.log('video[Height]'+video.style.height)
+            console.log('video[Width]'+video.style.width)
+            var request = $http({
+            method: 'post',
+            url:  '/captureImage',
+            data: {
+               base64: canvas.toDataURL(),
+               emotion: $('input[name=group1]:checked').val()
+            },
+            headers: { 'Content-Type': 'application/json' }
+          });
+        request.success(function (data) {
+            $.notifyBar({ cssClass: 'success', html: 'La teua foto ha sigut enviada, GRÀCIES!' });
+            console.log('Upload ok!');
+        });
+        request.error(function(serverResponse, status, headers, config) {
+           console.log('Upload bad!');
+           //alert(serverResponse);
+           $.notifyBar({ cssClass: 'error', html: 'Hem tingut un problema, torna a provar ;)' });
+        });
+      };
+   });
