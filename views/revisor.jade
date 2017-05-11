@@ -18,7 +18,7 @@ block content
       img(src='#{imgPath}' class='mg-responsive center-block')
       input(hidden='true' name='filePath' value='#{imgPath}')
       br
-      div(class='btn-group btn-group-lg btn-block')
+      div(class='btn-group btn-group-lg btn-block ' ng-click='markImage()')
         div(id='happy' class='btn btn-primary' )
           div.col-md-1
             input( id='happyi' type='radio' name='group1'  value='happy')
@@ -52,42 +52,80 @@ block content
       div
         br
         button(id='mark' class='btn btn-success btn-block' ng-click='markImage()' width='100' height='20') Enviar
+        button(id='delete' class='btn btn-danger btn-block' ng-click='deleteImage()' width='100' height='20') Eliminar
 
   script(type='text/javascript').
    // Put event listeners into place
-      window.addEventListener('DOMContentLoaded', function() {
+      window.addEventListener('DOMContentLoaded', function () {
           // Trigger photo take
           var emotions = ['happy','sad','neutral','disgust','fear','surprised']
           for (var i = 0; i < emotions.length; i++) {
-            var btnGRP = document.getElementById(emotions[i]);
-            btnGRP.addEventListener('click', function() {
+            var btnGRP = document.getElementById(emotions[i])
+            btnGRP.addEventListener('click', function () {
                 //alert('hola')
-                this.firstChild.firstChild.setAttribute('checked', 'true');
+                this.firstChild.firstChild.setAttribute('checked', 'true')
             });
           }
-      }, false);
+      }, false)
 
-   var mainApp = angular.module('cameraCaptureWeb', []);
-   mainApp.controller('formController', function($scope, $http) {
-       $scope.markImage = function () {
-            console.log('Borrar imatge')
-            var request = $http({
+      var mainApp = angular.module('cameraCaptureWeb', [])
+      mainApp.controller('formController', function($scope, $http) {
+        console.log('Compilat!')
+        $scope.markImage = function () {
+          console.log('Etiquetar imatge')
+          var request = $http({
             method: 'post',
             url:  '/revisor',
             data: {
-               filePath: $('input[name=filePath]').val(),
-               emotion: $('input[name=group1]:checked').val()
+              op: 'move',
+              filePath: $('input[name=filePath]').val(),
+              emotion: $('input[name=group1]:checked').val()
             },
             headers: { 'Content-Type': 'application/json' }
-          });
-        request.success(function (data) {
-            $.notifyBar({ cssClass: 'success', html: 'La teua foto ha sigut enviada, GRÀCIES!' });
-            console.log('Upload ok!');
-        });
-        request.error(function(serverResponse, status, headers, config) {
-           console.log('Upload bad!');
-           //alert(serverResponse);
-           $.notifyBar({ cssClass: 'error', html: 'Hem tingut un problema, torna a provar ;)' });
-        });
-      };
-   });
+          })
+          request.success(function (data) {
+            if (data.status == 1) {
+              $.notifyBar({ cssClass: 'success', html: 'Imatge etiquetada!' })
+              console.log('image tagged ok!');
+              window.location.replace('revisor')
+            } else {
+              $.notifyBar({ cssClass: 'error', html: 'Hem tingut un problema, torna a provar ;)' })
+              console.log('ERROR: image not tagged!; err status: ' + data.status + "; Message: "+ data.msg)
+              window.location.replace('revisor')
+            }
+          })
+          request.error(function(serverResponse, status, headers, config) {
+            console.log('ERROR: image not tagged!')
+            //alert(serverResponse);
+            $.notifyBar({ cssClass: 'error', html: 'Hem tingut un problema de comunicació, torna a provar ;)' })
+          })
+        };
+        
+        $scope.deleteImage = function () {
+          console.log('Eliminar imatge')
+          var request = $http({
+            method: 'post',
+            url:  '/revisor',
+            data: {
+              op: 'delete',
+              filePath: $('input[name=filePath]').val()
+            },
+            headers: { 'Content-Type': 'application/json' }
+          })
+          request.success(function (data) {
+            if (data.status == 1) {
+              $.notifyBar({ cssClass: 'success', html: 'Imatge eliminada!' })
+              console.log('image eliminada ok!');
+              window.location.replace('revisor')
+            } else {
+              $.notifyBar({ cssClass: 'error', html: 'Hem tingut un problema, torna a provar ;)' })
+              console.log('ERROR: image not deleted!; err status: ' + data.status + "; Message: "+ data.msg)
+            }
+          })
+          request.error(function(serverResponse, status, headers, config) {
+            console.log('ERROR: image not delete!')
+            //alert(serverResponse);
+            $.notifyBar({ cssClass: 'error', html: 'Hem tingut un problema de comunicació, torna a provar ;)' })
+          })
+        }
+      })

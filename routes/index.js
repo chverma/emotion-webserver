@@ -2,6 +2,7 @@ var express = require('express')
 var router = express.Router()
 var fs = require('fs')
 var PythonShell = require('python-shell')
+const path = require('path')
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -98,10 +99,29 @@ router.get('/revisor', function (req, res, next) {
 })
 
 router.post('/revisor', function (req, res, next) {
-  var emotion = req.body.emotion
   var filePath = req.body.filePath
-  console.log(emotion)
-  console.log(filePath)
+  var fileFrom = './public/' + filePath
+  var operation = req.body.op
+  if (operation === 'move') {
+    var emotion = req.body.emotion
+    var fileTo = './public/taggedImages/' + emotion + '/' + path.basename(filePath)
+    console.log(fileFrom)
+    console.log('to')
+    console.log(fileTo)
+    var source = fs.createReadStream(fileFrom)
+    var dest = fs.createWriteStream(fileTo)
+    source.pipe(dest)
+    source.on('end', function () {
+      res.send(JSON.stringify({'status': 1, 'msg': 'OK'}))
+      console.log('Delete: ' + fileFrom)
+      fs.unlinkSync(fileFrom)
+    })
+    source.on('error', function (err) { res.send(JSON.stringify({'status': 0, 'msg': err})) })
+  } else {
+    console.log('Deleting... ' + fileFrom)
+    fs.unlinkSync(fileFrom)
+    res.send(JSON.stringify({'status': 1, 'msg': 'OK'}))
+  }
 })
 
 module.exports = router

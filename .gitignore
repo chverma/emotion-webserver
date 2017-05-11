@@ -1,3 +1,4 @@
 node_modules/*
 *.log
 public/uploads/*/*.png
+public/taggedImages/*/*.png
