@@ -50,10 +50,10 @@ router.post('/svm', function (req, res, next) {
         mode: 'text',
         pythonPath: '/usr/bin/python',
         pythonOptions: ['-u'],
-        scriptPath: '/home/chverma/UPV/TFG/pythonDlibLendmark',
-        args: [filename]
+        scriptPath: '/webserver/bin/',
+        args: ['spade', filename]
       }
-      PythonShell.run('predictOneImage.py', options, function (err, results) {
+      PythonShell.run('agentSender.py', options, function (err, results) {
         if (err) {
           console.log('predictOneImage-> Error')
           throw err
