@@ -41,8 +41,8 @@ router.post('/svm', function (req, res, next) {
   var emotion = req.body.emotion
   var base64Data = req.body.base64.replace(/^data:image\/png;base64,/, '')
   var timestamp = new Date().getTime()
-  var filename = emotion + '/web' + timestamp + '.png'
-  fs.writeFile('public/uploads/' + filename, base64Data, 'base64', function (err) {
+  var filename = 'public/uploads/' + emotion + '/web' + timestamp + '.png'
+  fs.writeFile(filename, base64Data, 'base64', function (err) {
     if (err) {
       console.log('error writing file: ' + err)
     } else {

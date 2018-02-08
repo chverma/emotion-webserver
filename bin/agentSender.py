@@ -7,14 +7,16 @@ import spade
 import cv2
 import datetime
 import base64
-
+import logging
+logging.basicConfig(filename='agentSender.log', level=logging.DEBUG)
 spade_server = os.environ.get('SPADE_ADDRESS')
-print "spade_server_python", spade_server
+logging.info("spade_server_python: %s" % spade_server)
+
 
 class Sender(spade.Agent.Agent):
     class SendImgBehav(spade.Behaviour.OneShotBehaviour):
         def onStart(self):
-            print "Starting SendImgBehav behaviour . . ."
+            logging.info("Starting SendImgBehav behaviour . . .")
             self.resp = 0
             msg = spade.ACLMessage.ACLMessage()
             msg.setPerformative("inform")
@@ -22,25 +24,26 @@ class Sender(spade.Agent.Agent):
             msg.addReceiver(spade.AID.aid("coordinator@"+spade_server, ["xmpp://coordinator@"+spade_server]))
             msg.setContent('clients')
             self.myAgent.send(msg)
-            print "Sended 1"
+            logging.info("Sended 1")
 
-        def _onTick(self):
-            print "TICK"
+        def _process(self):
+            logging.info("process")
             self.myAgent.counter = self.myAgent.counter + 1
             msg = spade.ACLMessage.ACLMessage()
             msg.setPerformative("inform")
             msg.setOntology("img")
-            print "TICK2"
+            logging.info("process1")
             try:
                 msg.addReceiver(spade.AID.aid("coordinator@"+spade_server, ["xmpp://coordinator@"+spade_server]))
+                logging.error(self.myAgent.myFacialImagePath)
                 base64img = base64.b64encode(cv2.imread(self.myAgent.myFacialImagePath, 0))
-                msg.setContent(base64img)
+                msg.setContent(str(base64img))
             except Exception as e:
-                print str(e)
-                msg = "No Content"
+                logging.error("ERROR: generating base64: {}".format(str(e)))
+                msg.setContent("No Content")
 
             self.myAgent.send(msg)
-            print "Image sended!"
+            logging.info("Image sended!")
             self.myAgent.t0 = datetime.datetime.now()
 
     class RecvEmotionBehav(spade.Behaviour.Behaviour):
@@ -48,21 +51,21 @@ class Sender(spade.Agent.Agent):
         This EventBehaviour receives the response containing the facial emotion detection
         """
         def onStart(self):
-            print "Starting behaviour RecvEmotionBehav. . ."
+            logging.info("Starting behaviour RecvEmotionBehav. . .")
             self.myAgent.counter = 0
 
         def _process(self):
-            print "RECEIVE SOMETHIN"
-            self.msg = self._receive(True)
+            self.msg = self._receive(5)
 
             if self.msg:
+                logging.info("RECEIVE SOMETHIN")
                 t0 = datetime.datetime.now()
-                print 'Received in %d seconds' % (t0-self.myAgent.t0).seconds
-                # print "Response obtained"
+                logging.info('Received in %d seconds' % (t0-self.myAgent.t0).seconds)
+                # logging.info("Response obtained")
                 emotion = self.msg.getContent()
-                print "-->", emotion
+                print(emotion)
             else:
-                print "No response"
+                logging.info("No response")
 
             self.myAgent.stop()
             sys.exit(0)
