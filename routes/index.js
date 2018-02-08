@@ -54,9 +54,12 @@ router.post('/svm', function (req, res, next) {
         args: ['spade', filename]
       }
       PythonShell.run('agentSender.py', options, function (err, results) {
+
         if (err) {
-          console.log('predictOneImage-> Error')
-          throw err
+          console.log('predictOneImage-> Error ', err.toString())
+          //throw err
+          res.send(JSON.stringify({'status': 2, 'msg': 'Fail'}))
+          return
         }
         // results is an array consisting of messages collected during execution
         console.log('results: %j', results.toString())

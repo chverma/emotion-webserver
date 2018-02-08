@@ -8,7 +8,8 @@ import cv2
 import datetime
 import base64
 import logging
-logging.basicConfig(filename='agentSender.log', level=logging.DEBUG)
+import json
+logging.basicConfig(filename="agentSender.log", level=logging.DEBUG)
 spade_server = os.environ.get('SPADE_ADDRESS')
 logging.info("spade_server_python: %s" % spade_server)
 
@@ -22,7 +23,11 @@ class Sender(spade.Agent.Agent):
             msg.setPerformative("inform")
             msg.setOntology("login")
             msg.addReceiver(spade.AID.aid("coordinator@"+spade_server, ["xmpp://coordinator@"+spade_server]))
-            msg.setContent('clients')
+            jsonMsg = {
+                'type': 'client',
+                'color_shape': 3
+                }
+            msg.setContent(json.dumps(jsonMsg))
             self.myAgent.send(msg)
             logging.info("Sended 1")
 
@@ -55,7 +60,7 @@ class Sender(spade.Agent.Agent):
             self.myAgent.counter = 0
 
         def _process(self):
-            self.msg = self._receive(5)
+            self.msg = self._receive(block=True, timeout=2)
 
             if self.msg:
                 logging.info("RECEIVE SOMETHIN")
@@ -63,12 +68,15 @@ class Sender(spade.Agent.Agent):
                 logging.info('Received in %d seconds' % (t0-self.myAgent.t0).seconds)
                 # logging.info("Response obtained")
                 emotion = self.msg.getContent()
+                logging.info("emotion {}".format(emotion))
                 print(emotion)
             else:
                 logging.info("No response")
 
-            self.myAgent.stop()
-            sys.exit(0)
+            self.myAgent.alive = False
+            logging.info("Bye!")
+            # self.myAgent.stop()
+            # sys.exit(0)
 
     def _setup(self):
         # Create the template for the EventBehaviour: a message from myself
@@ -84,17 +92,18 @@ class Sender(spade.Agent.Agent):
 
 def main(img_path):
     a = Sender("web-server@" + spade_server, "secret")
+    # a.setDebugToScreen()
     a.myFacialImagePath = img_path
     time.sleep(1)
     a.start()
     a.t0 = 0
-    alive = True
+    a.alive = True
 
-    while alive:
+    while a.alive:
         try:
             time.sleep(1)
         except KeyboardInterrupt:
-            alive = False
+            a.alive = False
     a.stop()
     sys.exit(0)
 
