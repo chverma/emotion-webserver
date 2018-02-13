@@ -7,7 +7,8 @@ const path = require('path')
 /* GET home page. */
 router.get('/', function (req, res, next) {
   // res.render('index', { title: 'Express'});
-  res.redirect('/captureImage')
+  // FIXME: Here the 'face' path must be replaced by the right way
+  res.redirect('/face/captureImage')
 })
 
 router.get('/captureImage', function (req, res, next) {
@@ -93,6 +94,7 @@ router.get('/revisor', function (req, res, next) {
   var emotions = ['fear', 'surprised', 'disgust', 'happy', 'neutral', 'sad']
   var file = ''
   for (var i = 0; i < emotions.length; i++) {
+    // TODO
     file = getFilePath(emotions[i])
     if (file) {
       break

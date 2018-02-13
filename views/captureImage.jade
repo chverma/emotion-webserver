@@ -121,7 +121,7 @@ block content
             console.log("video[Width]"+video.style.width)
             var request = $http({
             method: "post",
-            url:  "/captureImage",
+            url:  "captureImage",
             data: {
                base64: canvas.toDataURL(),
                emotion: $("input[name=group1]:checked").val()
@@ -149,7 +149,7 @@ block content
             console.log("video[Width]"+video.style.width)
             var request = $http({
             method: "post",
-            url:  "/svm",
+            url:  "svm",
             data: {
                base64: canvas.toDataURL(),
                emotion: $("input[name=group1]:checked").val()
