@@ -75,7 +75,7 @@ block content
           console.log('Etiquetar imatge')
           var request = $http({
             method: 'post',
-            url:  '/revisor',
+            url:  'revisor',
             data: {
               op: 'move',
               filePath: $('input[name=filePath]').val(),
@@ -105,7 +105,7 @@ block content
           console.log('Eliminar imatge')
           var request = $http({
             method: 'post',
-            url:  '/revisor',
+            url:  'revisor',
             data: {
               op: 'delete',
               filePath: $('input[name=filePath]').val()
