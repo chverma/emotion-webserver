@@ -129,4 +129,12 @@ router.post('/revisor', function (req, res, next) {
   }
 })
 
+router.get('/dashboard', function (req, res, next) {
+  res.render('dashboard', { title: 'Dashboard' })
+})
+
+router.get('/facepanel', function (req, res, next) {
+  res.render('facePanel', { title: 'Face panel' })
+})
+
 module.exports = router
