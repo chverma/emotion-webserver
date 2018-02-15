@@ -3,17 +3,91 @@ block content
   // span(class="sr-only") (current)
   div(class='container' id='Cool' ng-app='cameraCaptureWeb' ng-controller='formController')
       h2(class="text-center") Face panel
+      br
+      div(id="myDiv")
+      br
       button(id='refreshBtn' class='btn btn-success' ng-click='refreshIframe()' width='100' height='20') Refresh
       br
       iframe(id="faceI", width='800', height='350', scrolling='no', frameborder='no', src='http://localhost:5000/face/model/checkIdentity')
+      br
+      iframe(id="faceI2", width='800', height='350', scrolling='no', frameborder='no', src='http://localhost:5000/face/model/group-model')
 
   script(type='text/javascript').
+      console.log('javascript1')
+      Plotly.d3.csv('https://raw.githubusercontent.com/plotly/datasets/master/3d-scatter.csv', function(err, rows){
+        console.log('javascript2', rows)
+        var emotions = [
+          [-1, 1, 1],// "angry":
+          [0, 0, 0],// "neutral"
+          [1, 1, 1],//"happy"
+          [-1, 1, -1],//"fear"
+          [1, 1, -1],// "surprise"
+          [0.02, 0.91, -0.5],// "sad"
+          [-0.66, -0.5, -0.09]// "disgust"
+        ]
+        rows = []
+        rows.push(emotions[0])
+
+        rows.push(emotions[1])
+        rows.push(emotions[2])
+        rows.push(emotions[3])
+        rows.push(emotions[4])
+        rows.push(emotions[5])
+        rows.push(emotions[6])
+        rows.push(emotions[1])
+        function unpack(rows, key) { return rows.map(function(row) { return row[key]; });}
+
+        var trace1 = {
+          x:unpack(rows, 0),
+          y: unpack(rows, 1),
+          z: unpack(rows, 2),
+          mode: 'markers',
+          marker: {
+            size: 12,
+            line: {
+              color: 'rgba(217, 217, 217,0.14)',
+              width: 0.5
+            },
+            opacity: 0.8
+          },
+          type: 'scatter3d'
+        };
+
+        var trace2 = {
+          x:unpack(rows, 0),
+          y: unpack(rows, 1),
+          z: unpack(rows, 2),
+          mode: 'markers',
+          marker: {
+            color: 'rgb(127, 127, 127)',
+            size: 12,
+            symbol:'circle',
+            line: {
+              color: 'rgb(204, 204, 204)',
+              width: 1
+            },
+            opacity: 0.8
+          },
+          type:'scatter3d'
+        };
+
+        var data = [trace1];
+        var layout = {
+          margin: { l: 0, r: 0, b: 0, t: 0 },
+          yaxis: {title: 'yaxis title'},
+          xaxis: {title: 'xaxis title'},
+          zaxis: {title: 'zaxis title'},
+        };
+        Plotly.newPlot('myDiv', data, layout);
+      });
       var mainApp = angular.module('cameraCaptureWeb', [])
       mainApp.controller('formController', function($scope, $http) {
         console.log('Compilat!')
         $scope.refreshIframe = function () {
           console.log('Etiquetar imatge')
           var iframe = document.getElementById('faceI');
+          iframe.src = iframe.src;
+          var iframe = document.getElementById('faceI2');
           iframe.src = iframe.src;
         }
       })

@@ -3,6 +3,8 @@ var router = express.Router()
 var fs = require('fs')
 var PythonShell = require('python-shell')
 const path = require('path')
+var plotly = require('plotly')
+
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
