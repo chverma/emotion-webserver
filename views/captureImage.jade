@@ -1,57 +1,68 @@
 extends layout
 block content
   div(class="container" id="Cool" ng-app="cameraCaptureWeb" ng-controller="formController")
-    h4.blue.red#header("property"="pValue") 1. Selecciona la emoció que vas a representar
-    h4.blue.red#header("property"="pValue") 2. Interpreta la emoció al teu gust
-    h4.blue.red#header("property"="pValue") 3. Polsa sobre el botó enviar
-    //div(class="btn-group btn-group-lg")
-        //button( type="button" class="btn btn-primary") Sad
-        //button( type="button" class="btn btn-primary") Samsung
-        //button( type="button",class="btn btn-primary") Sony
-    div(class="btn-group btn-group-lg btn-block")
-        div.row(id="happy" class="btn btn-primary" )
-          div.col-md-1
-            input( id="happyi" type="radio" name="group1"  value="happy")
-          div.col-md-1
-            p Contenta
-        div.row(id="sad" class="btn btn-primary")
-          div.col-md-1
-            input( id="sadi" type="radio" name="group1" value="sad")
-          div.col-md-1
-            p Trista
-        div.row(id="neutral" class="btn btn-primary")
-          div.col-md-1
-            input( id="neutrali" type="radio" name="group1" value="neutral" checked)
-          div.col-md-1
-            p Neutral
-        div.row(id="disgust" class="btn btn-primary")
-          div.col-md-1
-            input( id="disgusti" type="radio" name="group1" value="disgust")
-          div.col-md-1
-            p Disgustada
-        div.row(id="fear" class="btn btn-primary")
-          div.col-md-1
-            input( id="feari" type="radio" name="group1" value="fear")
-          div.col-md-1
-            p Asustada
-        div.row(id="surprised" class="btn btn-primary")
-          div.col-md-1
-            input(  id="surprisedi" type="radio" name="group1" value="surprised")
-          div.col-md-1
-            p Sorpresa
+    ul(class="row nav nav-tabs" style="margin-top:10px; margin-bottom:10px;")
+      li(id="camLink" style="outline:none" ng-class="{'active': curr=='camLink'}" ng-click="curr='camLink'")
+        a(href="#") Web cam
+      li(id="fileLink" style="outline:none" ng-class="{'active': curr=='fileLink'}" ng-click="curr='fileLink'")
+        a(href="#") Upload an image
+
+    div(id="camContent" ng-hide="curr!='camLink'" class="row")
+      h4.blue.red#header("property"="pValue") 1. Selecciona la emoció que vas a representar
+      h4.blue.red#header("property"="pValue") 2. Interpreta la emoció al teu gust
+      h4.blue.red#header("property"="pValue") 3. Polsa sobre el botó enviar
+
+      div(class="btn-group btn-group-lg btn-block")
+          div.row(id="happy" class="btn btn-primary" )
+            div.col-md-1
+              input( id="happyi" type="radio" name="group1"  value="happy")
+            div.col-md-1
+              p Happy
+          div.row(id="sad" class="btn btn-primary")
+            div.col-md-1
+              input( id="sadi" type="radio" name="group1" value="sad")
+            div.col-md-1
+              p Sad
+          div.row(id="neutral" class="btn btn-primary")
+            div.col-md-1
+              input( id="neutrali" type="radio" name="group1" value="neutral" checked)
+            div.col-md-1
+              p Neutral
+          div.row(id="disgust" class="btn btn-primary")
+            div.col-md-1
+              input( id="disgusti" type="radio" name="group1" value="disgust")
+            div.col-md-1
+              p Disgust
+          div.row(id="fear" class="btn btn-primary")
+            div.col-md-1
+              input( id="feari" type="radio" name="group1" value="fear")
+            div.col-md-1
+              p Fear
+          div.row(id="surprised" class="btn btn-primary")
+            div.col-md-1
+              input(  id="surprisedi" type="radio" name="group1" value="surprised")
+            div.col-md-1
+              p Surprise
 
 
 
-    div.row
-     div.col-md-6
-       video#video(autoplay='' ng-click="uploadImage()")
-     div.col-md-6
-       canvas#canvas(width='640', height='480' hidden="true")
+      div.row
+       div.col-md-6
+         video#video(autoplay='' ng-click="uploadToSVM()")
+       div.col-md-6
+         canvas#canvas(width='640', height='480' hidden="true")
 
-    div
-      br
-      button(id="upload" class="btn btn-success btn-block" ng-click="uploadImage()" width='100' height='20') Enviar
-      button(id="svm" class="btn btn-warning btn-block" ng-click="uploadToSVM()" width='100' height='20') SVM
+      div
+        div.row
+          button(id="svm" class="btn btn-warning btn-block" ng-click="uploadToSVM()" width='100' height='20') Send camera image to the recognizer
+
+    div(id="fileContent" ng-hide="curr!='fileLink'")
+      div(class='row')
+        div(class="input-group" style="padding-bottom:20px;")
+          span(class="input-group-addon")
+            i(class="glyphicon glyphicon-picture")
+          input(id="imageFile" type="file" class="form-control" name="imageFile" style="padding-bottom:40px; height:30px" accept=".jpg, .jpeg, .png")
+          button(id="upload" class="btn btn-success btn-block" ng-click="uploadImage()" width='100' height='20') Upload selected image
 
   script(type="text/javascript").
    // Put event listeners into place
@@ -99,31 +110,34 @@ block content
 
    var mainApp = angular.module("cameraCaptureWeb", []);
    mainApp.controller("formController", function($scope, $http) {
+       $scope.curr = 'camLink';
        $scope.uploadImage = function () {
-            var canvas = document.getElementById("canvas");
-            var video  = document.getElementById("video");
-            context = canvas.getContext("2d");
-            context.drawImage(video, 0, 0, 640, 480);
-            console.log("video[Height]"+video.style.height)
-            console.log("video[Width]"+video.style.width)
-            var request = $http({
-            method: "post",
-            url:  "captureImage",
-            data: {
-               base64: canvas.toDataURL(),
-               emotion: $("input[name=group1]:checked").val()
-            },
-            headers: { 'Content-Type': 'application/json' }
-          });
-        request.success(function (data) {
-            $.notifyBar({ cssClass: "success", html: "La teua foto ha sigut enviada, GRÀCIES!" });
-            console.log("Upload ok!");
-        });
-        request.error(function(serverResponse, status, headers, config) {
-           console.log("Upload bad!");
-           //alert(serverResponse);
-           $.notifyBar({ cssClass: "error", html: "Hem tingut un problema, torna a provar ;)" });
-        });
+            var imageInput = document.getElementById("imageFile");
+            var file = imageInput.files[0];
+            var reader  = new FileReader();
+            
+            reader.addEventListener("load", function () {
+              console.log(this.result)
+              var request = $http({
+                method: "post",
+                url:  "svm",
+                data: {
+                   base64: this.result,
+                   emotion: 'neutral'
+                },
+                headers: { 'Content-Type': 'application/json' }
+              });
+              request.success(function (data) {
+                  $.notifyBar({ cssClass: "success", html: data.msg });
+                  console.log("Upload ok!", data);
+              });
+              request.error(function(serverResponse, status, headers, config) {
+                 console.log("Upload bad2!");
+                 alert(serverResponse);
+                 $.notifyBar({ cssClass: "error", html: "Hem tingut un problema, torna a provar ;)" });
+              });
+            }, false);
+            reader.readAsDataURL(file);            
       };
 
       //Send to SVM

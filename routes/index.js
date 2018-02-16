@@ -42,7 +42,7 @@ router.get('/svm', function (req, res, next) {
 router.post('/svm', function (req, res, next) {
   // console.log("FormData "+ req.body.base64);
   var emotion = req.body.emotion
-  var base64Data = req.body.base64.replace(/^data:image\/png;base64,/, '')
+  var base64Data = req.body.base64.replace(/^data:image\/.*;base64,/, '')
   var timestamp = new Date().getTime()
   var filename = 'public/uploads/' + emotion + '/web' + timestamp + '.png'
   fs.writeFile(filename, base64Data, 'base64', function (err) {

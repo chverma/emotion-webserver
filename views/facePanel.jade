@@ -2,20 +2,25 @@ extends layout
 block content
   // span(class="sr-only") (current)
   div(class='container' id='Cool' ng-app='cameraCaptureWeb' ng-controller='formController')
-      h2(class="text-center") Face panel
-      br
-      div(id="myDiv")
-      br
-      button(id='refreshBtn' class='btn btn-success' ng-click='refreshIframe()' width='100' height='20') Refresh
-      br
-      iframe(id="faceI", width='800', height='350', scrolling='no', frameborder='no', src='http://localhost:5000/face/model/checkIdentity')
-      br
-      iframe(id="faceI2", width='800', height='350', scrolling='no', frameborder='no', src='http://localhost:5000/face/model/group-model')
+      div(class="row")
+        h2(class="text-center") Face panel
+      div(class="row")
+        div(class="col-sm-6 text-center")
+          iframe(id="faceI2", width='100%', height='100%', scrolling='yes', frameborder='no', src='http://localhost:5000/face/model/group-model')
+        div(class="col-sm-6 text-center")
+          div(id="PADplot")
+      div(class="row")
+        br
+        button(id='refreshBtn' class='btn btn-success' ng-click='refreshIframe()' width='100' height='20') Refresh
+        br
+        iframe(id="faceI", width='800', height='350', scrolling='no', frameborder='no', src='http://localhost:5000/face/model/checkIdentity')
+        br
+
 
   script(type='text/javascript').
       console.log('javascript1')
-      Plotly.d3.csv('https://raw.githubusercontent.com/plotly/datasets/master/3d-scatter.csv', function(err, rows){
-        console.log('javascript2', rows)
+      plotPAD()
+      function plotPAD(){
         var emotions = [
           [-1, 1, 1],// "angry":
           [0, 0, 0],// "neutral"
@@ -78,8 +83,8 @@ block content
           xaxis: {title: 'xaxis title'},
           zaxis: {title: 'zaxis title'},
         };
-        Plotly.newPlot('myDiv', data, layout);
-      });
+        Plotly.newPlot('PADplot', data, layout);
+      };
       var mainApp = angular.module('cameraCaptureWeb', [])
       mainApp.controller('formController', function($scope, $http) {
         console.log('Compilat!')
